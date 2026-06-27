@@ -24,7 +24,7 @@ jobs:
         run: unzip YAIIII_APK_V1_proyecto_android.zip -d proyecto
 
       - name: Ver contenido del proyecto
-        run: find proyecto -maxdepth 3 -type f
+        run: find proyecto -maxdepth 4 -type f
 
       - name: Configurar Java
         uses: actions/setup-java@v4
@@ -32,14 +32,20 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Dar permiso a Gradle
-        run: chmod +x proyecto/gradlew
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
 
       - name: Compilar APK
-        run: cd proyecto && ./gradlew assembleDebug
+        working-directory: proyecto/YAIIII_APK_V1
+        run: gradle assembleDebug --stacktrace
+
+      - name: Buscar APK generado
+        run: find proyecto -name "*.apk" -type f
 
       - name: Subir APK generado
         uses: actions/upload-artifact@v4
         with:
           name: YAIIII-APK-debug
-          path: proyecto/app/build/outputs/apk/debug/*.apk
+          path: proyecto/YAIIII_APK_V1/app/build/outputs/apk/debug/*.apk
