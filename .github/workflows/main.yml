@@ -1,1 +1,45 @@
 
+name: Build YAIIII APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - principal
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Ver archivos iniciales
+        run: ls -la
+
+      - name: Descomprimir proyecto YAIIII
+        run: unzip YAIIII_APK_V1_proyecto_android.zip -d proyecto
+
+      - name: Ver contenido del proyecto
+        run: find proyecto -maxdepth 3 -type f
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Dar permiso a Gradle
+        run: chmod +x proyecto/gradlew
+
+      - name: Compilar APK
+        run: cd proyecto && ./gradlew assembleDebug
+
+      - name: Subir APK generado
+        uses: actions/upload-artifact@v4
+        with:
+          name: YAIIII-APK-debug
+          path: proyecto/app/build/outputs/apk/debug/*.apk
